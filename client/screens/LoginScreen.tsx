@@ -21,10 +21,10 @@ export default function LoginScreen() {
     return (
       <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
         <LinearGradient
-          colors={[Colors.dark.backgroundRoot, Colors.dark.backgroundElevated]}
+          colors={[Colors.dark.backgroundRoot, Colors.dark.backgroundSecondary]}
           style={StyleSheet.absoluteFill}
         />
-        <ActivityIndicator size="large" color={Colors.dark.accent} />
+        <ActivityIndicator size="large" color={Colors.dark.primary} />
       </View>
     );
   }
@@ -32,14 +32,14 @@ export default function LoginScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <LinearGradient
-        colors={[Colors.dark.backgroundRoot, Colors.dark.backgroundElevated]}
+        colors={[Colors.dark.backgroundRoot, Colors.dark.backgroundSecondary]}
         style={StyleSheet.absoluteFill}
       />
       
       <View style={styles.content}>
         <View style={styles.logoContainer}>
           <Image
-            source={require("../../assets/icon.png")}
+            source={require("../../assets/images/icon.png")}
             style={styles.logo}
             contentFit="contain"
           />
@@ -59,13 +59,11 @@ export default function LoginScreen() {
 
       <View style={styles.bottomContainer}>
         <Button
+          title="Sign in with Replit"
           onPress={handleLogin}
-          style={styles.loginButton}
+          icon="log-in"
           testID="button-login"
-        >
-          <Feather name="log-in" size={20} color={Colors.dark.backgroundRoot} style={styles.buttonIcon} />
-          <ThemedText style={styles.buttonText}>Sign in with Replit</ThemedText>
-        </Button>
+        />
 
         <ThemedText style={styles.disclaimer}>
           Sign in to save your readings and access them anywhere
@@ -78,7 +76,7 @@ export default function LoginScreen() {
 function FeatureItem({ icon, text }: { icon: keyof typeof Feather.glyphMap; text: string }) {
   return (
     <View style={styles.featureItem}>
-      <Feather name={icon} size={20} color={Colors.dark.accent} />
+      <Feather name={icon} size={20} color={Colors.dark.primary} />
       <ThemedText style={styles.featureText}>{text}</ThemedText>
     </View>
   );
@@ -104,15 +102,15 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   title: {
-    ...Typography.heading1,
-    color: Colors.dark.accent,
+    ...Typography.h1,
+    color: Colors.dark.primary,
     marginBottom: Spacing.sm,
   },
   subtitle: {
-    ...Typography.bodyLarge,
-    color: Colors.dark.textSecondary,
+    ...Typography.body,
+    color: Colors.dark.textMuted,
     textAlign: "center",
-    marginBottom: Spacing.xxl,
+    marginBottom: Spacing["3xl"],
   },
   featureList: {
     gap: Spacing.md,
@@ -124,31 +122,16 @@ const styles = StyleSheet.create({
   },
   featureText: {
     ...Typography.body,
-    color: Colors.dark.textPrimary,
+    color: Colors.dark.text,
   },
   bottomContainer: {
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.xl,
     gap: Spacing.md,
   },
-  loginButton: {
-    backgroundColor: Colors.dark.accent,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: Spacing.md,
-    borderRadius: 12,
-  },
-  buttonIcon: {
-    marginRight: Spacing.sm,
-  },
-  buttonText: {
-    ...Typography.button,
-    color: Colors.dark.backgroundRoot,
-  },
   disclaimer: {
     ...Typography.caption,
-    color: Colors.dark.textTertiary,
+    color: Colors.dark.textMuted,
     textAlign: "center",
   },
 });
