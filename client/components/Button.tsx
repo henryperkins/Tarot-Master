@@ -1,92 +1,171 @@
-import React, { ReactNode } from "react";
-import { StyleSheet, Pressable, ViewStyle, StyleProp } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  WithSpringConfig,
-} from "react-native-reanimated";
-
-import { ThemedText } from "@/components/ThemedText";
+import { Pressable, StyleSheet, ViewStyle, TextStyle, ActivityIndicator, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Colors, BorderRadius, Spacing, Fonts, Typography, Shadows } from "@/constants/theme";
+import { ThemedText } from "./ThemedText";
 import { useTheme } from "@/hooks/useTheme";
-import { BorderRadius, Spacing } from "@/constants/theme";
+import { Feather } from "@expo/vector-icons";
 
-interface ButtonProps {
-  onPress?: () => void;
-  children: ReactNode;
-  style?: StyleProp<ViewStyle>;
+export interface ButtonProps {
+  title: string;
+  onPress: () => void;
+  variant?: "primary" | "secondary" | "ghost" | "outline";
+  size?: "sm" | "md" | "lg";
   disabled?: boolean;
+  loading?: boolean;
+  icon?: keyof typeof Feather.glyphMap;
+  iconPosition?: "left" | "right";
+  style?: ViewStyle;
+  testID?: string;
 }
 
-const springConfig: WithSpringConfig = {
-  damping: 15,
-  mass: 0.3,
-  stiffness: 150,
-  overshootClamping: true,
-  energyThreshold: 0.001,
-};
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
 export function Button({
+  title,
   onPress,
-  children,
-  style,
+  variant = "primary",
+  size = "md",
   disabled = false,
+  loading = false,
+  icon,
+  iconPosition = "left",
+  style,
+  testID,
 }: ButtonProps) {
   const { theme } = useTheme();
-  const scale = useSharedValue(1);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-  const handlePressIn = () => {
-    if (!disabled) {
-      scale.value = withSpring(0.98, springConfig);
-    }
+  const sizeStyles = {
+    sm: { height: 40, paddingHorizontal: Spacing.lg, fontSize: 14 },
+    md: { height: Spacing.buttonHeight, paddingHorizontal: Spacing["2xl"], fontSize: 16 },
+    lg: { height: 60, paddingHorizontal: Spacing["3xl"], fontSize: 18 },
   };
 
-  const handlePressOut = () => {
-    if (!disabled) {
-      scale.value = withSpring(1, springConfig);
-    }
+  const currentSize = sizeStyles[size];
+
+  const renderContent = (textColor: string) => (
+    <View style={styles.content}>
+      {loading ? (
+        <ActivityIndicator color={textColor} size="small" />
+      ) : (
+        <>
+          {icon && iconPosition === "left" && (
+            <Feather name={icon} size={currentSize.fontSize + 2} color={textColor} style={styles.iconLeft} />
+          )}
+          <ThemedText
+            style={[
+              styles.text,
+              { color: textColor, fontSize: currentSize.fontSize },
+            ]}
+          >
+            {title}
+          </ThemedText>
+          {icon && iconPosition === "right" && (
+            <Feather name={icon} size={currentSize.fontSize + 2} color={textColor} style={styles.iconRight} />
+          )}
+        </>
+      )}
+    </View>
+  );
+
+  if (variant === "primary") {
+    return (
+      <Pressable
+        onPress={onPress}
+        disabled={disabled || loading}
+        testID={testID}
+        style={({ pressed }) => [
+          styles.base,
+          {
+            height: currentSize.height,
+            paddingHorizontal: currentSize.paddingHorizontal,
+            opacity: disabled ? 0.5 : pressed ? 0.8 : 1,
+          },
+          Shadows.glow,
+          style,
+        ]}
+      >
+        <LinearGradient
+          colors={[theme.primary, theme.primaryLight]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[styles.gradient, { borderRadius: BorderRadius.md }]}
+        >
+          {renderContent(theme.buttonText)}
+        </LinearGradient>
+      </Pressable>
+    );
+  }
+
+  const variantStyles = {
+    secondary: {
+      backgroundColor: theme.backgroundTertiary,
+      borderColor: theme.borderLight,
+      textColor: theme.text,
+    },
+    ghost: {
+      backgroundColor: "transparent",
+      borderColor: "transparent",
+      textColor: theme.primary,
+    },
+    outline: {
+      backgroundColor: "transparent",
+      borderColor: theme.primary,
+      textColor: theme.primary,
+    },
   };
+
+  const currentVariant = variantStyles[variant];
 
   return (
-    <AnimatedPressable
-      onPress={disabled ? undefined : onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      disabled={disabled}
-      style={[
-        styles.button,
+    <Pressable
+      onPress={onPress}
+      disabled={disabled || loading}
+      testID={testID}
+      style={({ pressed }) => [
+        styles.base,
+        styles.nonPrimary,
         {
-          backgroundColor: theme.link,
-          opacity: disabled ? 0.5 : 1,
+          height: currentSize.height,
+          paddingHorizontal: currentSize.paddingHorizontal,
+          backgroundColor: currentVariant.backgroundColor,
+          borderColor: currentVariant.borderColor,
+          opacity: disabled ? 0.5 : pressed ? 0.8 : 1,
         },
         style,
-        animatedStyle,
       ]}
     >
-      <ThemedText
-        type="body"
-        style={[styles.buttonText, { color: theme.buttonText }]}
-      >
-        {children}
-      </ThemedText>
-    </AnimatedPressable>
+      {renderContent(currentVariant.textColor)}
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {
-    height: Spacing.buttonHeight,
-    borderRadius: BorderRadius.full,
+  base: {
+    borderRadius: BorderRadius.md,
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+  },
+  nonPrimary: {
+    borderWidth: 1,
+  },
+  gradient: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  content: {
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
   },
-  buttonText: {
-    fontWeight: "600",
+  text: {
+    fontFamily: Fonts.serifMedium,
+    letterSpacing: 0.5,
+  },
+  iconLeft: {
+    marginRight: Spacing.sm,
+  },
+  iconRight: {
+    marginLeft: Spacing.sm,
   },
 });

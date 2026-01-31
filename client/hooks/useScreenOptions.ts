@@ -1,35 +1,42 @@
-import { Platform } from "react-native";
 import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
-import { isLiquidGlassAvailable } from "expo-glass-effect";
+import { Colors, Fonts } from "@/constants/theme";
+import { Platform } from "react-native";
 
-import { useTheme } from "@/hooks/useTheme";
-
-interface UseScreenOptionsParams {
+interface ScreenOptionsConfig {
   transparent?: boolean;
 }
 
-export function useScreenOptions({
-  transparent = true,
-}: UseScreenOptionsParams = {}): NativeStackNavigationOptions {
-  const { theme, isDark } = useTheme();
+export function useScreenOptions(config: ScreenOptionsConfig = {}): NativeStackNavigationOptions {
+  const { transparent = true } = config;
+  const theme = Colors.dark;
+
+  const baseOptions: NativeStackNavigationOptions = {
+    headerTintColor: theme.primary,
+    headerTitleStyle: {
+      fontFamily: Fonts.serifMedium,
+      fontWeight: "500",
+      fontSize: 18,
+      color: theme.text,
+    },
+    headerBackTitleVisible: false,
+  };
+
+  if (transparent) {
+    return {
+      ...baseOptions,
+      headerTransparent: true,
+      headerBlurEffect: "dark",
+      headerStyle: {
+        backgroundColor: Platform.OS === "ios" ? "transparent" : theme.backgroundRoot,
+      },
+    };
+  }
 
   return {
-    headerTitleAlign: "center",
-    headerTransparent: transparent,
-    headerBlurEffect: isDark ? "dark" : "light",
-    headerTintColor: theme.text,
+    ...baseOptions,
+    headerTransparent: false,
     headerStyle: {
-      backgroundColor: Platform.select({
-        ios: undefined,
-        android: theme.backgroundRoot,
-        web: theme.backgroundRoot,
-      }),
-    },
-    gestureEnabled: true,
-    gestureDirection: "horizontal",
-    fullScreenGestureEnabled: isLiquidGlassAvailable() ? false : true,
-    contentStyle: {
-      backgroundColor: theme.backgroundRoot,
+      backgroundColor: theme.backgroundDefault,
     },
   };
 }

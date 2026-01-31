@@ -1,65 +1,95 @@
-import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Feather } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
-import { Platform, StyleSheet } from "react-native";
-import HomeStackNavigator from "@/navigation/HomeStackNavigator";
-import ProfileStackNavigator from "@/navigation/ProfileStackNavigator";
+import { HomeScreen } from "@/screens/HomeScreen";
+import { JournalScreen } from "@/screens/JournalScreen";
+import { CoachScreen } from "@/screens/CoachScreen";
+import { SettingsScreen } from "@/screens/SettingsScreen";
 import { useTheme } from "@/hooks/useTheme";
+import { Colors, Spacing, BorderRadius, Fonts } from "@/constants/theme";
+import { Platform, StyleSheet, View } from "react-native";
+import { BlurView } from "expo-blur";
 
 export type MainTabParamList = {
-  HomeTab: undefined;
-  ProfileTab: undefined;
+  Home: undefined;
+  Journal: undefined;
+  Coach: undefined;
+  Settings: undefined;
 };
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-export default function MainTabNavigator() {
-  const { theme, isDark } = useTheme();
+function TabBarBackground() {
+  return (
+    <BlurView
+      intensity={80}
+      tint="dark"
+      style={StyleSheet.absoluteFill}
+    />
+  );
+}
+
+export function MainTabNavigator() {
+  const { theme } = useTheme();
 
   return (
     <Tab.Navigator
-      initialRouteName="HomeTab"
       screenOptions={{
-        tabBarActiveTintColor: theme.tabIconSelected,
-        tabBarInactiveTintColor: theme.tabIconDefault,
-        tabBarStyle: {
-          position: "absolute",
-          backgroundColor: Platform.select({
-            ios: "transparent",
-            android: theme.backgroundRoot,
-          }),
-          borderTopWidth: 0,
-          elevation: 0,
-        },
-        tabBarBackground: () =>
-          Platform.OS === "ios" ? (
-            <BlurView
-              intensity={100}
-              tint={isDark ? "dark" : "light"}
-              style={StyleSheet.absoluteFill}
-            />
-          ) : null,
         headerShown: false,
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.tabIconDefault,
+        tabBarLabelStyle: {
+          fontFamily: Fonts.body,
+          fontSize: 11,
+          marginBottom: Platform.OS === "ios" ? 0 : Spacing.sm,
+        },
+        tabBarStyle: {
+          backgroundColor: Platform.OS === "ios" ? "transparent" : theme.backgroundDefault,
+          borderTopColor: theme.borderLight,
+          borderTopWidth: 1,
+          position: "absolute",
+          height: Platform.OS === "ios" ? 88 : 64,
+          paddingTop: Spacing.sm,
+        },
+        tabBarBackground: Platform.OS === "ios" ? TabBarBackground : undefined,
       }}
     >
       <Tab.Screen
-        name="HomeTab"
-        component={HomeStackNavigator}
+        name="Home"
+        component={HomeScreen}
         options={{
-          title: "Home",
+          tabBarLabel: "Reading",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="home" size={size} color={color} />
+            <Feather name="sun" size={size} color={color} />
           ),
         }}
       />
       <Tab.Screen
-        name="ProfileTab"
-        component={ProfileStackNavigator}
+        name="Journal"
+        component={JournalScreen}
         options={{
-          title: "Profile",
+          tabBarLabel: "Journal",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="user" size={size} color={color} />
+            <Feather name="book" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Coach"
+        component={CoachScreen}
+        options={{
+          tabBarLabel: "Coach",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="compass" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          tabBarLabel: "Settings",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="settings" size={size} color={color} />
           ),
         }}
       />
