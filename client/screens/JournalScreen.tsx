@@ -153,6 +153,7 @@ export function JournalScreen() {
           description="Complete your first reading to begin recording your journey"
           imageType="journal"
           actionLabel="Start a Reading"
+          actionIcon="sun"
           onAction={goToReading}
         />
       ) : (

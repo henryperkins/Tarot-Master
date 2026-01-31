@@ -61,9 +61,12 @@ export function QuestionInput({
       </View>
 
       <View style={styles.suggestions}>
-        <ThemedText type="caption" style={[styles.suggestionLabel, { color: theme.textMuted }]}>
-          Need inspiration?
-        </ThemedText>
+        <View style={styles.suggestionHeader}>
+          <Feather name="zap" size={14} color={theme.textMuted} />
+          <ThemedText type="caption" style={[styles.suggestionLabel, { color: theme.textMuted }]}>
+            Need inspiration?
+          </ThemedText>
+        </View>
         <View style={styles.suggestionTags}>
           {SAMPLE_QUESTIONS.slice(0, 3).map((q, i) => (
             <Pressable
@@ -111,9 +114,13 @@ const styles = StyleSheet.create({
   suggestions: {
     marginTop: Spacing.lg,
   },
-  suggestionLabel: {
+  suggestionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.xs,
     marginBottom: Spacing.sm,
   },
+  suggestionLabel: {},
   suggestionTags: {
     flexDirection: "row",
     flexWrap: "wrap",

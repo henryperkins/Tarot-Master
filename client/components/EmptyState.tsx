@@ -10,31 +10,35 @@ interface EmptyStateProps {
   title: string;
   description: string;
   imageType?: "journal" | "readings" | "generic";
+  icon?: keyof typeof Feather.glyphMap;
   actionLabel?: string;
+  actionIcon?: keyof typeof Feather.glyphMap;
   onAction?: () => void;
 }
+
+const defaultIcons: Record<string, keyof typeof Feather.glyphMap> = {
+  journal: "book-open",
+  readings: "sun",
+  generic: "inbox",
+};
 
 export function EmptyState({
   title,
   description,
   imageType = "generic",
+  icon,
   actionLabel,
+  actionIcon,
   onAction,
 }: EmptyStateProps) {
   const { theme } = useTheme();
 
-  const imageSource = imageType === "journal" 
-    ? require("../../assets/images/empty-journal.png")
-    : require("../../assets/images/splash-icon.png");
+  const displayIcon = icon || defaultIcons[imageType] || "inbox";
 
   return (
     <View style={styles.container}>
-      <View style={[styles.imageContainer, { backgroundColor: theme.backgroundSecondary }]}>
-        <Image
-          source={imageSource}
-          style={styles.image}
-          contentFit="contain"
-        />
+      <View style={[styles.iconContainer, { backgroundColor: theme.backgroundSecondary }]}>
+        <Feather name={displayIcon} size={48} color={theme.primary} />
       </View>
       <ThemedText type="subtitle" style={styles.title}>
         {title}
@@ -42,15 +46,16 @@ export function EmptyState({
       <ThemedText style={[styles.description, { color: theme.textMuted }]}>
         {description}
       </ThemedText>
-      {actionLabel && onAction && (
+      {actionLabel && onAction ? (
         <Button
           title={actionLabel}
           onPress={onAction}
           variant="outline"
           size="md"
+          icon={actionIcon}
           style={styles.button}
         />
-      )}
+      ) : null}
     </View>
   );
 }
@@ -62,18 +67,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: Spacing["3xl"],
   },
-  imageContainer: {
-    width: 120,
-    height: 120,
+  iconContainer: {
+    width: 100,
+    height: 100,
     borderRadius: BorderRadius.full,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: Spacing["2xl"],
-    overflow: "hidden",
-  },
-  image: {
-    width: 80,
-    height: 80,
   },
   title: {
     marginBottom: Spacing.md,
