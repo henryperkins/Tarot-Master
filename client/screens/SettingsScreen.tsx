@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: Spacing.lg,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: Colors.dark.borderLight,
+    borderBottomColor: "#3A2F3F", // Manually set to Colors.dark.border
   },
   iconContainer: {
     width: 36,
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
   },
   subscriptionLabel: {
     fontSize: 14,
-    color: Colors.dark.textSecondary,
+    color: "#9A8C7F", // Manually set to Colors.dark.textSecondary
   },
   subscriptionValue: {
     fontSize: 14,
