@@ -34,7 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await response.json();
       setUser(data.user);
     } catch (error) {
-      console.error("Error fetching user:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error("Error fetching user:", errorMessage);
       setUser(null);
     } finally {
       setIsLoading(false);
