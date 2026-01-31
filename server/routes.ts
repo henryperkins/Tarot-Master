@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "node:http";
 import OpenAI from "openai";
 import { stripeService } from "./stripeService";
-import { getStripePublishableKey } from "./stripeClient";
+import { getStripePublishableKey, getUncachableStripeClient } from "./stripeClient";
 import { storage } from "./storage";
 
 const openai = new OpenAI({
@@ -88,31 +88,68 @@ Weave these cards together into a meaningful narrative that addresses the questi
     try {
       const rows = await stripeService.listProductsWithPrices();
 
-      const productsMap = new Map();
-      for (const row of rows as any[]) {
-        if (!productsMap.has(row.product_id)) {
-          productsMap.set(row.product_id, {
-            id: row.product_id,
-            name: row.product_name,
-            description: row.product_description,
-            active: row.product_active,
-            metadata: row.product_metadata,
-            prices: [],
-          });
+      if (rows.length > 0) {
+        const productsMap = new Map();
+        for (const row of rows as any[]) {
+          if (!productsMap.has(row.product_id)) {
+            productsMap.set(row.product_id, {
+              id: row.product_id,
+              name: row.product_name,
+              description: row.product_description,
+              active: row.product_active,
+              metadata: row.product_metadata,
+              prices: [],
+            });
+          }
+          if (row.price_id) {
+            productsMap.get(row.product_id).prices.push({
+              id: row.price_id,
+              unit_amount: row.unit_amount,
+              currency: row.currency,
+              recurring: row.recurring,
+              active: row.price_active,
+              metadata: row.price_metadata,
+            });
+          }
         }
-        if (row.price_id) {
-          productsMap.get(row.product_id).prices.push({
-            id: row.price_id,
-            unit_amount: row.unit_amount,
-            currency: row.currency,
-            recurring: row.recurring,
-            active: row.price_active,
-            metadata: row.price_metadata,
-          });
-        }
+        res.json({ data: Array.from(productsMap.values()) });
+        return;
       }
 
-      res.json({ data: Array.from(productsMap.values()) });
+      const stripe = await getUncachableStripeClient();
+      const products = await stripe.products.list({ active: true, limit: 10 });
+      const tableauProducts = products.data.filter((p) => p.name.toLowerCase().includes("tableu"));
+      const productsWithPrices = await Promise.all(
+        tableauProducts
+          .map(async (product) => {
+            const prices = await stripe.prices.list({
+              product: product.id,
+              active: true,
+            });
+            const tier = product.name.toLowerCase().includes("pro")
+              ? "pro"
+              : product.name.toLowerCase().includes("plus")
+                ? "plus"
+                : "free";
+            return {
+              id: product.id,
+              name: product.name,
+              description: product.description,
+              active: product.active,
+              metadata: { ...product.metadata, tier },
+              prices: prices.data.map((price) => ({
+                id: price.id,
+                unit_amount: price.unit_amount,
+                currency: price.currency,
+                recurring: price.recurring,
+                active: price.active,
+                metadata: { ...price.metadata, tier },
+              })),
+            };
+          }),
+      );
+
+      res.json({ data: productsWithPrices });
     } catch (error) {
       console.error("Error listing products:", error);
       res.status(500).json({ error: "Failed to list products" });

@@ -22,7 +22,15 @@ The frontend is fully implemented with all screens functional:
 - Coach Screen: Intention categories with guided questions
 - Settings Screen: Preferences and app info
 
-### Recent Bug Fixes (January 2026)
+### Recent Updates (January 2026)
+- **Payment Processing**: Stripe integration for subscription billing with 3-tier model:
+  - Seeker (Free): 5 readings/month, 3 TTS/month, local journal
+  - Enlightened (Plus, $7.99/mo): 50 readings/month, 50 TTS/month, cloud journal sync
+  - Mystic (Pro, $19.99/mo): Unlimited readings, unlimited TTS, API access
+- **Settings Screen Enhanced**: Account section with auth, subscription display, upgrade/manage billing buttons
+- **Pricing Screen**: Beautiful tier cards with feature comparison and checkout flow
+
+### Bug Fixes (January 2026)
 - **Guest Access**: Users can now try tarot readings without signing in first. Authentication is optional for exploring the app.
 - **Web Shadow Styles**: Fixed deprecated shadow* style prop warnings by using boxShadow for web platform compatibility.
 - **Error Logging**: Improved authentication error messages to show meaningful details instead of empty objects.
@@ -91,7 +99,18 @@ Preferred communication style: Simple, everyday language.
   - `REPLIT_DEV_DOMAIN`: Development server domain
   - `REPLIT_DOMAINS`: Production domains for CORS
 
-### Planned Integrations (from attached docs)
-- Stripe for subscription payments (not yet implemented)
+### Payment Processing (Stripe)
+- **Stripe Integration**: Full payment processing with Replit's Stripe connector
+  - Environment: Managed by `stripe-replit-sync` package
+  - Products: Tableu Plus ($7.99/mo), Tableu Pro ($19.99/mo)
+  - Checkout: Stripe Hosted Checkout via expo-web-browser
+  - Billing Portal: Stripe Customer Portal for subscription management
+- **Key Files**:
+  - `server/stripeClient.ts`: Stripe client initialization
+  - `server/stripeService.ts`: Checkout sessions, customer management
+  - `client/contexts/SubscriptionContext.tsx`: Global tier/status management
+  - `client/screens/PricingScreen.tsx`: Tier selection and checkout UI
+
+### Planned Integrations
 - Azure OpenAI/Anthropic as fallback AI providers
 - Text-to-Speech for audio readings
