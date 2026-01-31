@@ -97,12 +97,12 @@ export function JournalScreen() {
                 {spread?.name || item.spreadType}
               </ThemedText>
             </View>
-            <Pressable onPress={() => toggleFavorite(item.id)} hitSlop={8}>
+            <Pressable onPress={() => toggleFavorite(item.id)} hitSlop={8} testID={`button-favorite-${item.id}`}>
               <Feather
-                name={item.isFavorite ? "heart" : "heart"}
+                name="heart"
                 size={18}
                 color={item.isFavorite ? theme.error : theme.textMuted}
-                style={{ opacity: item.isFavorite ? 1 : 0.5 }}
+                style={item.isFavorite ? { fill: theme.error } : undefined}
               />
             </Pressable>
           </View>
