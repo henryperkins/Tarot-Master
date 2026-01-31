@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
   cardDetail: {
     paddingVertical: Spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: Colors.dark.borderLight,
+    borderBottomColor: "#3A2F3F", // Manually set to Colors.dark.border
   },
   cardHeader: {
     flexDirection: "row",

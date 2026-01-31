@@ -21,6 +21,7 @@ import { TarotCard } from "@/components/TarotCard";
 import { useTheme } from "@/hooks/useTheme";
 import { Colors, Spacing, BorderRadius, Fonts } from "@/constants/theme";
 import { RootStackParamList } from "@/navigation/RootNavigator";
+
 import { getSpreadById, Spread } from "@/data/spreads";
 import { getRandomCards, TarotCard as TarotCardType } from "@/data/tarotDeck";
 import * as Haptics from "expo-haptics";

@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: Spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: Colors.dark.borderLight,
+    borderBottomColor: "#3A2F3F", // Manually set to Colors.dark.border
   },
   cardPosition: {
     fontSize: 13,
