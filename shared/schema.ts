@@ -6,18 +6,20 @@ import { z } from "zod";
 // Re-export chat models for AI integrations
 export * from "./models/chat";
 
-// Users table
+// Users table for Replit Auth
 export const users = pgTable("users", {
   id: varchar("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+  replitId: text("replit_id").notNull().unique(),
+  username: text("username").notNull(),
+  profileImage: text("profile_image"),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
