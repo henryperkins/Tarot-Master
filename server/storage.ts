@@ -6,6 +6,15 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByReplitId(replitId: string): Promise<User | undefined>;
   upsertUser(user: InsertUser): Promise<User>;
+  updateUserStripeInfo(
+    userId: string,
+    stripeInfo: {
+      stripeCustomerId?: string;
+      stripeSubscriptionId?: string | null;
+      subscriptionTier?: string;
+      subscriptionStatus?: string | null;
+    },
+  ): Promise<User | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -15,13 +24,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByReplitId(replitId: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.replitId, replitId));
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.replitId, replitId));
     return user;
   }
 
   async upsertUser(insertUser: InsertUser): Promise<User> {
     const existingUser = await this.getUserByReplitId(insertUser.replitId);
-    
+
     if (existingUser) {
       const [updatedUser] = await db
         .update(users)
@@ -34,11 +46,25 @@ export class DatabaseStorage implements IStorage {
       return updatedUser;
     }
 
-    const [newUser] = await db
-      .insert(users)
-      .values(insertUser)
-      .returning();
+    const [newUser] = await db.insert(users).values(insertUser).returning();
     return newUser;
+  }
+
+  async updateUserStripeInfo(
+    userId: string,
+    stripeInfo: {
+      stripeCustomerId?: string;
+      stripeSubscriptionId?: string | null;
+      subscriptionTier?: string;
+      subscriptionStatus?: string | null;
+    },
+  ): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set(stripeInfo)
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
   }
 }
 
