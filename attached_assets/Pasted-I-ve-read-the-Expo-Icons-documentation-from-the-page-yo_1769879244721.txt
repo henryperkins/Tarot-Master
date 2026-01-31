@@ -1,0 +1,105 @@
+I’ve read the Expo Icons documentation from the page you linked (Expo Vector Icons guide). Below is a structured summary of its contents so you can ask targeted questions about any part of it. All details below are sourced from that official Expo page.  ￼
+
+⸻
+
+1. Overview of Expo Icons
+
+Purpose
+
+The guide teaches how to use icons in an Expo app, including built-in vector icons, custom icon fonts, image icons, and icon buttons.  ￼
+
+Built-in Vector Icons (@expo/vector-icons)
+	•	@expo/vector-icons is included by default in an Expo project created with npx create-expo-app.  ￼
+	•	It wraps react-native-vector-icons and provides a similar API.  ￼
+	•	Contains many popular icon sets (e.g., Ionicons, FontAwesome).  ￼
+
+Example usage
+
+import Ionicons from '@expo/vector-icons/Ionicons';
+
+<Ionicons name="checkmark-circle" size={32} color="green" />;
+
+￼
+
+⸻
+
+2. Preloading Icon Fonts
+	•	Like any custom font in Expo, icon fonts can be preloaded before the app renders.
+	•	Each icon component exposes a .font object you can load (e.g., Ionicons.font).  ￼
+
+⸻
+
+3. Custom Icon Fonts
+
+Expo provides methods for creating and using your own icon fonts.
+
+Methods
+
+createIconSet
+	•	Creates a custom icon font from a glyph map.
+	•	Example:
+
+import createIconSet from '@expo/vector-icons/createIconSet';
+const CustomIcon = createIconSet(glyphMap, 'fontFamily', 'font.ttf');
+
+￼
+
+createIconSetFromIcoMoon
+	•	Generates a custom icon set using an IcoMoon config.
+	•	Requires a selection.json config file and a .ttf font file.  ￼
+
+createIconSetFromFontello
+	•	Similar to IcoMoon, but uses a Fontello config.  ￼
+
+⸻
+
+4. Icon Buttons
+
+You can create buttons with icons using the built-in .Button component on the icon sets.
+
+Example
+
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+
+<FontAwesome.Button
+  name="facebook"
+  backgroundColor="#3b5998"
+  onPress={loginWithFacebook}
+>
+  Login with Facebook
+</FontAwesome.Button>
+
+￼
+
+⸻
+
+5. Icon Button Properties
+
+The documentation lists supported props for icon buttons:
+
+Prop	Description
+color	Color of text and icon
+size	Icon size
+iconStyle	Styles applied to icon (e.g., margins)
+backgroundColor	Button background
+borderRadius	Button corner radius
+onPress	Handler when button is pressed
+
+Default values are shown in the docs.  ￼
+
+⸻
+
+6. Icon Resources
+	•	The docs link to icons.expo.fyi as a searchable directory of available icons.  ￼
+	•	This directory lets you browse by icon set and name (separate from the docs themselves).  ￼
+
+⸻
+
+You can now ask questions such as:
+	•	How to preload icon fonts
+	•	How to create a custom icon set
+	•	What icon sets are included
+	•	How to use specific icons
+	•	Best practices for icon buttons
+
+Ask any specific part you want to dive into.
