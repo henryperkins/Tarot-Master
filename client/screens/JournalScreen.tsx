@@ -99,10 +99,9 @@ export function JournalScreen() {
             </View>
             <Pressable onPress={() => toggleFavorite(item.id)} hitSlop={8} testID={`button-favorite-${item.id}`}>
               <Feather
-                name="heart"
+                name={item.isFavorite ? "heart" : "heart"}
                 size={18}
                 color={item.isFavorite ? theme.error : theme.textMuted}
-                style={item.isFavorite ? { fill: theme.error } : undefined}
               />
             </Pressable>
           </View>

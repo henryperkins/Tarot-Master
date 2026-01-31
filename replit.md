@@ -22,6 +22,12 @@ The frontend is fully implemented with all screens functional:
 - Coach Screen: Intention categories with guided questions
 - Settings Screen: Preferences and app info
 
+### Recent Bug Fixes (January 2026)
+- **Guest Access**: Users can now try tarot readings without signing in first. Authentication is optional for exploring the app.
+- **Web Shadow Styles**: Fixed deprecated shadow* style prop warnings by using boxShadow for web platform compatibility.
+- **Error Logging**: Improved authentication error messages to show meaningful details instead of empty objects.
+- **Import Fixes**: Corrected module imports for MainTabNavigator and ThemedText type usage.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.

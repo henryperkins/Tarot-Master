@@ -80,14 +80,14 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.section}>
-        <Button
+        <Pressable
           onPress={handleLogout}
           style={styles.logoutButton}
           testID="button-logout"
         >
           <Feather name="log-out" size={18} color={Colors.dark.error} style={styles.logoutIcon} />
           <ThemedText style={styles.logoutText}>Sign Out</ThemedText>
-        </Button>
+        </Pressable>
       </View>
     </KeyboardAwareScrollViewCompat>
   );
