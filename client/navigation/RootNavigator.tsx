@@ -4,9 +4,11 @@ import { MainTabNavigator } from "./MainTabNavigator";
 import { ReadingScreen } from "@/screens/ReadingScreen";
 import { ReadingResultScreen } from "@/screens/ReadingResultScreen";
 import { JournalDetailScreen } from "@/screens/JournalDetailScreen";
+import PricingScreen from "@/screens/PricingScreen";
 import LoginScreen from "@/screens/LoginScreen";
 import { useScreenOptions } from "@/hooks/useScreenOptions";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 
 export type RootStackParamList = {
   Login: undefined;
@@ -14,6 +16,7 @@ export type RootStackParamList = {
   Reading: { spreadId: string; question?: string };
   ReadingResult: { readingId: number };
   JournalDetail: { entryId: number };
+  Pricing: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -48,6 +51,11 @@ function RootStackNavigator() {
         component={LoginScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="Pricing"
+        component={PricingScreen}
+        options={{ headerTitle: "Subscription Plans" }}
+      />
     </Stack.Navigator>
   );
 }
@@ -55,9 +63,11 @@ function RootStackNavigator() {
 export function RootNavigator() {
   return (
     <AuthProvider>
-      <NavigationContainer>
-        <RootStackNavigator />
-      </NavigationContainer>
+      <SubscriptionProvider>
+        <NavigationContainer>
+          <RootStackNavigator />
+        </NavigationContainer>
+      </SubscriptionProvider>
     </AuthProvider>
   );
 }

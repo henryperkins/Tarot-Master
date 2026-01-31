@@ -1,9 +1,13 @@
-import { View, StyleSheet, Pressable } from "react-native";
+import { View, StyleSheet, Pressable, Platform, ActivityIndicator } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import * as WebBrowser from "expo-web-browser";
+import { useState } from "react";
 
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { ThemedText } from "@/components/ThemedText";
@@ -11,7 +15,12 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription, SUBSCRIPTION_TIERS } from "@/contexts/SubscriptionContext";
 import { Colors, Spacing, Typography, BorderRadius } from "@/constants/theme";
+import { RootStackParamList } from "@/navigation/RootNavigator";
+import { apiRequest } from "@/lib/query-client";
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -19,9 +28,37 @@ export default function ProfileScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const { theme } = useTheme();
   const { user, logout } = useAuth();
+  const { tier, isPaid, tierConfig, isLoading: subscriptionLoading, refetchSubscription } = useSubscription();
+  const navigation = useNavigation<NavigationProp>();
+  const [portalLoading, setPortalLoading] = useState(false);
 
   const handleLogout = async () => {
     await logout();
+  };
+
+  const handleUpgrade = () => {
+    navigation.navigate("Pricing");
+  };
+
+  const handleManageBilling = async () => {
+    setPortalLoading(true);
+    try {
+      const response = await apiRequest("POST", "/api/create-portal-session");
+      const data = await response.json();
+      
+      if (data.url) {
+        if (Platform.OS === "web") {
+          window.location.href = data.url;
+        } else {
+          await WebBrowser.openBrowserAsync(data.url);
+          await refetchSubscription();
+        }
+      }
+    } catch (error) {
+      console.error("Error opening billing portal:", error);
+    } finally {
+      setPortalLoading(false);
+    }
   };
 
   return (
@@ -56,9 +93,80 @@ export default function ProfileScreen() {
       </Card>
 
       <View style={styles.section}>
+        <ThemedText style={styles.sectionTitle}>Subscription</ThemedText>
+        
+        <Card style={styles.subscriptionCard}>
+          {subscriptionLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="small" color={Colors.dark.primary} />
+            </View>
+          ) : (
+            <>
+              <View style={styles.subscriptionHeader}>
+                <View style={styles.tierBadge}>
+                  <Feather 
+                    name={isPaid ? "star" : "user"} 
+                    size={16} 
+                    color={isPaid ? Colors.dark.primary : Colors.dark.textMuted} 
+                  />
+                  <ThemedText style={[styles.tierName, isPaid && styles.tierNamePaid]}>
+                    {tierConfig.name}
+                  </ThemedText>
+                </View>
+                <ThemedText style={styles.tierLabel}>
+                  {tierConfig.label} Plan
+                </ThemedText>
+              </View>
+
+              <View style={styles.subscriptionFeatures}>
+                <FeatureRow 
+                  label="Monthly Readings" 
+                  value={tierConfig.monthlyReadings === Infinity ? "Unlimited" : `${tierConfig.monthlyReadings}`} 
+                />
+                <FeatureRow 
+                  label="Voice Narrations" 
+                  value={tierConfig.monthlyTTS === Infinity ? "Unlimited" : `${tierConfig.monthlyTTS}/mo`} 
+                />
+                <FeatureRow 
+                  label="Cloud Journal" 
+                  value={tierConfig.cloudJournal ? "Enabled" : "Local Only"} 
+                  enabled={tierConfig.cloudJournal}
+                />
+              </View>
+
+              {isPaid ? (
+                <Button
+                  title={portalLoading ? "Loading..." : "Manage Billing"}
+                  onPress={handleManageBilling}
+                  variant="secondary"
+                  loading={portalLoading}
+                  style={styles.billingButton}
+                  testID="button-manage-billing"
+                />
+              ) : (
+                <Button
+                  title="Upgrade Plan"
+                  onPress={handleUpgrade}
+                  variant="primary"
+                  style={styles.upgradeButton}
+                  testID="button-upgrade"
+                />
+              )}
+            </>
+          )}
+        </Card>
+      </View>
+
+      <View style={styles.section}>
         <ThemedText style={styles.sectionTitle}>Account</ThemedText>
         
         <Card style={styles.menuCard}>
+          <MenuItem
+            icon="credit-card"
+            label="Subscription Plans"
+            onPress={handleUpgrade}
+          />
+          <View style={styles.menuDivider} />
           <MenuItem
             icon="settings"
             label="Settings"
@@ -90,6 +198,25 @@ export default function ProfileScreen() {
         </Pressable>
       </View>
     </KeyboardAwareScrollViewCompat>
+  );
+}
+
+function FeatureRow({ 
+  label, 
+  value, 
+  enabled = true 
+}: { 
+  label: string; 
+  value: string; 
+  enabled?: boolean;
+}) {
+  return (
+    <View style={styles.featureRow}>
+      <ThemedText style={styles.featureLabel}>{label}</ThemedText>
+      <ThemedText style={[styles.featureValue, !enabled && styles.featureValueDisabled]}>
+        {value}
+      </ThemedText>
+    </View>
   );
 }
 
@@ -150,6 +277,61 @@ const styles = StyleSheet.create({
     color: Colors.dark.textMuted,
     marginBottom: Spacing.md,
     marginLeft: Spacing.xs,
+  },
+  subscriptionCard: {
+    padding: Spacing.lg,
+  },
+  loadingContainer: {
+    paddingVertical: Spacing.xl,
+    alignItems: "center",
+  },
+  subscriptionHeader: {
+    marginBottom: Spacing.lg,
+  },
+  tierBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.sm,
+    marginBottom: Spacing.xs,
+  },
+  tierName: {
+    ...Typography.h4,
+    color: Colors.dark.text,
+    fontFamily: "CormorantGaramond_600SemiBold",
+  },
+  tierNamePaid: {
+    color: Colors.dark.primary,
+  },
+  tierLabel: {
+    ...Typography.small,
+    color: Colors.dark.textMuted,
+  },
+  subscriptionFeatures: {
+    marginBottom: Spacing.lg,
+    gap: Spacing.sm,
+  },
+  featureRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  featureLabel: {
+    ...Typography.body,
+    color: Colors.dark.textSecondary,
+  },
+  featureValue: {
+    ...Typography.body,
+    color: Colors.dark.text,
+    fontWeight: "500",
+  },
+  featureValueDisabled: {
+    color: Colors.dark.textMuted,
+  },
+  billingButton: {
+    marginTop: Spacing.sm,
+  },
+  upgradeButton: {
+    marginTop: Spacing.sm,
   },
   menuCard: {
     padding: 0,
