@@ -132,36 +132,52 @@ export const Typography = {
   },
 };
 
-export const Shadows = {
-  sm: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 2,
-    elevation: 2,
+export const Shadows = Platform.select({
+  web: {
+    sm: {
+      boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.15)",
+    },
+    md: {
+      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
+    },
+    lg: {
+      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.3)",
+    },
+    glow: {
+      boxShadow: "0px 0px 16px rgba(212, 184, 150, 0.4)",
+    },
   },
-  md: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+  default: {
+    sm: {
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.15,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    md: {
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 4,
+    },
+    lg: {
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 8,
+    },
+    glow: {
+      shadowColor: "#D4B896",
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.4,
+      shadowRadius: 16,
+      elevation: 8,
+    },
   },
-  lg: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  glow: {
-    shadowColor: "#D4B896",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-};
+});
 
 export const Fonts = Platform.select({
   ios: {
